@@ -1,0 +1,36 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libssl-dev libffi-dev python3-dev gzip zip unzip openjdk-17-jdk libtool autoconf automake ccache fontconfig
+        pip install --upgrade buildozer cython
+
+    - name: Build APK with Buildozer
+      run: |
+        yes | buildozer -v android debug
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: PlasticShopApp-APK
+        path: bin/*.apk
+        
